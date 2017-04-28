@@ -13,16 +13,15 @@ namespace MapRunner
     public class PointOfCustomRoute
     {
         private const int RADIUS_EARTH = 6372795; //радиус Земли в метрах
-        public int Count { get; set; }
+        private static int _count;
+        public int Count { get; private set; }
         public Geopoint Location { get; set; }
         public double CurrentLenght { get; set; }
         public Point NormalizedAnchorPoint { get; set; }
 
         public PointOfCustomRoute()
         {
-
-            
-
+            Count = ++_count;
         }
 
         public static double GetDistance(PointOfCustomRoute p1, PointOfCustomRoute p2)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -30,8 +31,8 @@ namespace MapRunner
     public sealed partial class MainPage : Page
     {
         private RandomAccessStreamReference _mapIconStreamReference;
-        public List<PointOfCustomRoute> PointList { get; set; }
-        
+        public ObservableCollection<PointOfCustomRoute> PointList { get; set; }
+        private double _totalLenghtWay;
         public MainPage()
         {
             this.InitializeComponent();
@@ -40,8 +41,9 @@ namespace MapRunner
             //Show();
             //ShowRouteOnMap();
             GetLocation();
-            PointList = new List<PointOfCustomRoute>();
-            myMap.DataContext = this;
+            PointList = new ObservableCollection<PointOfCustomRoute>();
+            //myMap.DataContext = this;
+           
         }
 
         private async void ShowRouteOnMap()
@@ -233,7 +235,7 @@ namespace MapRunner
             };
             if (PointList.Count != 0)
             {
-                currPoint.CurrentLenght = PointOfCustomRoute.GetDistance(PointList[PointList.Count - 1], currPoint);
+                currPoint.CurrentLenght = _totalLenghtWay += PointOfCustomRoute.GetDistance(PointList[PointList.Count - 1], currPoint);
             }
             PointList.Add(currPoint);
 
@@ -252,13 +254,6 @@ namespace MapRunner
                 myMap.MapElements.Remove(polyline);
             }
             myMap.MapElements.Add(polyline);
-            //if(PointList.Count == 4)
-            //    MapItems.ItemsSource = PointList;
-
-            MapItems.ItemsSource = null;
-            MapItems.ItemsSource = PointList;
-            
-
         }
     }
 }

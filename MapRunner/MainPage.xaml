@@ -87,7 +87,7 @@
             </SplitView.Pane>
             <SplitView.Content>
                 <Maps:MapControl Name="myMap" ColorScheme="Light"  RotateInteractionMode="GestureAndControl" ZoomInteractionMode="GestureAndControl" TiltInteractionMode="GestureAndControl" MapServiceToken="709riiwA5V2Sdc9d5U3N~_YuXLW9e9zEl7qz4jt0VqA~Ah8J2RYapGj2pa4Dmrug9tWE-oQDk1ANmVF6j1txOoBx9TFQMnvyfEYKnoIrMwIc" d:IsHidden="True" MapTapped="myMap_MapTapped">
-                    <Maps:MapItemsControl x:Name="MapItems">
+                    <Maps:MapItemsControl x:Name="MapItems" ItemsSource="{x:Bind PointList}">
                         <Maps:MapItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
