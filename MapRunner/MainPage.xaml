@@ -38,9 +38,41 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="GetLocationStyle" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <TextBlock Text="&#xE707;" FontSize="20" FontFamily="Segoe MDL2 Assets"/>
+                        <TextBlock Text="Определение местоположения" Width="100"  FontFamily="Segoe UI" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0" FontSize="12" TextWrapping="Wrap"></TextBlock>
+                    </StackPanel>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="NewRouteStyle" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <TextBlock Text="&#xE1D1;" FontSize="20" FontFamily="Segoe MDL2 Assets"/>
+                        <TextBlock Text="Новый маршрут" Width="100"  FontFamily="Segoe UI" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0" FontSize="12" TextWrapping="Wrap"></TextBlock>
+                    </StackPanel>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <SplitView Name="MainSplitView" DisplayMode="CompactOverlay" CompactPaneLength="40" OpenPaneLength="150" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <!--<Button x:Name="mapItemButton" Background="Transparent" HorizontalAlignment="Center" BorderThickness="1"  >
+            <Image Source="Assets/pin48.png"
+                                               Maps:MapControl.NormalizedAnchorPoint="{Binding NormalizedAnchorPoint}"
+                                               Maps:MapControl.Location="{Binding Location}" Stretch="None"  Margin="-10,-5">
+                <Image.Transitions>
+                    <TransitionCollection>
+                        <EntranceThemeTransition FromVerticalOffset="100" IsStaggeringEnabled="True"/>
+                    </TransitionCollection>
+                </Image.Transitions>
+            </Image>
+        </Button>-->
+        
+        <SplitView Name="MainSplitView" DisplayMode="CompactOverlay" CompactPaneLength="40" OpenPaneLength="150" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" PaneClosed="MainSplitView_PaneClosed">
             <SplitView.Pane>
                 <StackPanel>
                     <Button Name="HamdurgerButton" Background="Transparent" FontFamily="Segoe MDL2 Assets" FontSize="20" Width="40" Height="40" Content="&#xE700;" Click="HamdurgerButton_Click" HorizontalContentAlignment="Left"/>
@@ -48,11 +80,36 @@
                     <Button Name="btnDarkLightMode" Background="Transparent" Height="40" Width="40"  Style="{StaticResource btnDark}" Click="btnDarkLightMode_Click" HorizontalAlignment="Left" HorizontalContentAlignment="Left"/>
 
                     <Button Name="btnMapMode" Background="Transparent" Height="40" Width="40" Style="{StaticResource btnMapMode}" Click="btnMapMode_Click" HorizontalContentAlignment="Left" HorizontalAlignment="Left"/>
+                    <Button Name="btnGetLocation" Background="Transparent" Height="40" Width="40" Style="{StaticResource GetLocationStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnGetLocation_Click"/>
+                    <Button Name="btnNewRoute" Background="Transparent" Height="40" Width="40" Style="{StaticResource NewRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnNewRoute_Click"/>
 
                 </StackPanel>
             </SplitView.Pane>
             <SplitView.Content>
-                <Maps:MapControl Name="myMap" ColorScheme="Light"  RotateInteractionMode="GestureAndControl" ZoomInteractionMode="GestureAndControl" TiltInteractionMode="GestureAndControl" MapServiceToken="709riiwA5V2Sdc9d5U3N~_YuXLW9e9zEl7qz4jt0VqA~Ah8J2RYapGj2pa4Dmrug9tWE-oQDk1ANmVF6j1txOoBx9TFQMnvyfEYKnoIrMwIc" d:IsHidden="True"/>
+                <Maps:MapControl Name="myMap" ColorScheme="Light"  RotateInteractionMode="GestureAndControl" ZoomInteractionMode="GestureAndControl" TiltInteractionMode="GestureAndControl" MapServiceToken="709riiwA5V2Sdc9d5U3N~_YuXLW9e9zEl7qz4jt0VqA~Ah8J2RYapGj2pa4Dmrug9tWE-oQDk1ANmVF6j1txOoBx9TFQMnvyfEYKnoIrMwIc" d:IsHidden="True" MapTapped="myMap_MapTapped">
+                    <Maps:MapItemsControl x:Name="MapItems">
+                        <Maps:MapItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Border Background="Transparent" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding CurrentLenght}" FontWeight="Bold"/>
+                                    </Border>
+                                    <Button x:Name="mapItemButton" Background="Transparent" Padding="0" BorderThickness="1" HorizontalAlignment="Center">
+                                        <Image Source="Assets/pin48.png"
+                                               Maps:MapControl.NormalizedAnchorPoint="{Binding NormalizedAnchorPoint}"
+                                               Maps:MapControl.Location="{Binding Location}">
+                                            <Image.Transitions>
+                                                <TransitionCollection>
+                                                    <EntranceThemeTransition FromVerticalOffset="100" IsStaggeringEnabled="True"/>
+                                                </TransitionCollection>
+                                            </Image.Transitions>
+                                        </Image>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </Maps:MapItemsControl.ItemTemplate>
+                    </Maps:MapItemsControl>
+                </Maps:MapControl>
 
             </SplitView.Content>
         </SplitView>
