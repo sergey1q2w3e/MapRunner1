@@ -31,8 +31,9 @@ namespace MapRunner
     public sealed partial class MainPage : Page
     {
         private RandomAccessStreamReference _mapIconStreamReference;
+        private MapPolyline _lastPolyline;
+        private MapIcon _lastPosition;
         public ObservableCollection<PointOfCustomRoute> PointList { get; set; }
-        private double _totalLenghtWay;
         public MainPage()
         {
             this.InitializeComponent();
@@ -43,7 +44,7 @@ namespace MapRunner
             GetLocation();
             PointList = new ObservableCollection<PointOfCustomRoute>();
             //myMap.DataContext = this;
-           
+            
         }
 
         private async void ShowRouteOnMap()
@@ -130,26 +131,26 @@ namespace MapRunner
                     Debug.WriteLine("Location updated.");
                     myMap.Center = pos.Coordinate.Point;
                     myMap.TrySetViewAsync(pos.Coordinate.Point, 16, myMap.Heading, myMap.DesiredPitch, MapAnimationKind.Linear);
-                    MapIcon mapIcon1 = new MapIcon();
-                    mapIcon1.Location = myMap.Center;
-                    mapIcon1.NormalizedAnchorPoint = new Point(0.5, 1.0);
-                    mapIcon1.Title = "My Position";
-                    mapIcon1.Image = _mapIconStreamReference;
-                    mapIcon1.ZIndex = 0;
-                    myMap.MapElements.Remove(mapIcon1);
-                    myMap.MapElements.Add(mapIcon1);
+                    MapIcon myPosition = new MapIcon();
+                    myPosition.Location = myMap.Center;
+                    myPosition.NormalizedAnchorPoint = new Point(0.5, 1.0);
+                    myPosition.Title = "My Position";
+                    myPosition.Image = _mapIconStreamReference;
+                    myPosition.ZIndex = 0;
                     
-                    break;
+                    if (myMap.MapElements.Contains(_lastPosition))
+                    {
+                        myMap.MapElements.Remove(_lastPosition);
+                    }
+                    myMap.MapElements.Add(myPosition);
+                    _lastPosition = myPosition;
 
+                    break;
                 case GeolocationAccessStatus.Denied:
                     Debug.WriteLine("Access to location is denied.");
-                    
-                    
                     break;
-
                 case GeolocationAccessStatus.Unspecified:
                     Debug.WriteLine("Unspecified error.");
-                    
                     break;
             }
         }
@@ -235,10 +236,15 @@ namespace MapRunner
             };
             if (PointList.Count != 0)
             {
-                currPoint.CurrentLenght = _totalLenghtWay += PointOfCustomRoute.GetDistance(PointList[PointList.Count - 1], currPoint);
+                currPoint.CurrentLenght = PointList.Last().CurrentLenght + PointOfCustomRoute.GetDistance(PointList.Last(), currPoint);
             }
             PointList.Add(currPoint);
 
+            DrawPolyline();
+        }
+
+        private void DrawPolyline()
+        {
             MapPolyline polyline = new MapPolyline();
             polyline.StrokeColor = Colors.Navy;
             polyline.StrokeThickness = 3;
@@ -247,13 +253,41 @@ namespace MapRunner
             {
                 geopositions.Add(pointOfCustomRoute.Location.Position);
             }
-            
+
             polyline.Path = new Geopath(geopositions);
-            if (myMap.MapElements.Contains(polyline))
+            //MapElement latestPolyline = myMap.MapElements.Where(i => i.GetType() is MapPolyline).First();
+            //myMap.MapElements.Remove(latestPolyline);
+
+            if (myMap.MapElements.Contains(_lastPolyline))
             {
-                myMap.MapElements.Remove(polyline);
+                myMap.MapElements.Remove(_lastPolyline);
             }
             myMap.MapElements.Add(polyline);
+            _lastPolyline = polyline;
+            
         }
+
+        private void mapItemButton_Click(object sender, RoutedEventArgs e)
+        {
+            var mapItemButton = sender as Button;
+            PointOfCustomRoute currMapItem = mapItemButton?.DataContext as PointOfCustomRoute;
+            if (currMapItem != null)
+            {
+                int ind = PointList.IndexOf(currMapItem);
+                PointList.RemoveAt(ind);
+                DrawPolyline();
+                if (ind != PointList.Count)
+                {
+                    double delta = PointList[ind].CurrentLenght - PointList[ind - 1].CurrentLenght -
+                                   PointOfCustomRoute.GetDistance(PointList[ind], PointList[ind - 1]);
+                    for (int i = ind; i < PointList.Count; i++)
+                    {
+                        PointList[i].CurrentLenght -= delta;
+                    }
+                }
+            }
+        }
+
+        
     }
 }
