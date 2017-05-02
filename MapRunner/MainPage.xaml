@@ -95,7 +95,7 @@
                                     <Border Background="Transparent" HorizontalAlignment="Center">
                                         <TextBlock Text="{Binding Path=CurrentLenght,Converter={StaticResource LenghtFormatConverter}, ConverterParameter='\{0:n3\} KM'}" FontWeight="Bold"/>
                                     </Border>
-                                    <Button x:Name="mapItemButton" Background="Transparent" Padding="0" BorderThickness="1" HorizontalAlignment="Center">
+                                    <Button x:Name="mapItemButton" Background="Transparent" Padding="0" BorderThickness="1" HorizontalAlignment="Center" Click="mapItemButton_Click">
                                         <Image Source="Assets/pin48.png"
                                                Maps:MapControl.NormalizedAnchorPoint="{Binding NormalizedAnchorPoint}"
                                                Maps:MapControl.Location="{Binding Location}">
