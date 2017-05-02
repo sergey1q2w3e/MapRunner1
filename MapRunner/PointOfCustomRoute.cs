@@ -38,7 +38,7 @@ namespace MapRunner
             double e = Math.Cos(lat1) * Math.Cos(lat2) * Math.Cos(long2 - long1);
             double Y = Math.Atan(Math.Sqrt(a + Math.Pow(b - c, 2)) / (d + e));
 
-            return RADIUS_EARTH * Y;
+            return RADIUS_EARTH * Y / 1000;
         }
     }
 }
