@@ -58,6 +58,16 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="DeleteRouteStyle" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <TextBlock Text="&#xE74D;" FontSize="20" FontFamily="Segoe MDL2 Assets"/>
+                        <TextBlock Text="Удалить маршрут" Width="100"  FontFamily="Segoe UI" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0" FontSize="12" TextWrapping="Wrap"></TextBlock>
+                    </StackPanel>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <!--<Button x:Name="mapItemButton" Background="Transparent" HorizontalAlignment="Center" BorderThickness="1"  >
@@ -82,6 +92,7 @@
                     <Button Name="btnMapMode" Background="Transparent" Height="40" Width="40" Style="{StaticResource btnMapMode}" Click="btnMapMode_Click" HorizontalContentAlignment="Left" HorizontalAlignment="Left"/>
                     <Button Name="btnGetLocation" Background="Transparent" Height="40" Width="40" Style="{StaticResource GetLocationStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnGetLocation_Click"/>
                     <Button Name="btnNewRoute" Background="Transparent" Height="40" Width="40" Style="{StaticResource NewRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnNewRoute_Click"/>
+                    <Button Name="btnDeleteRoute" Background="Transparent" Height="40" Width="40" Style="{StaticResource DeleteRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left"/>
 
                 </StackPanel>
             </SplitView.Pane>

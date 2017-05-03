@@ -34,6 +34,7 @@ namespace MapRunner
         private MapPolyline _lastPolyline;
         private MapIcon _lastPosition;
         public ObservableCollection<PointOfCustomRoute> PointList { get; set; }
+        public bool IsRouting { get; set; }
         public MainPage()
         {
             this.InitializeComponent();
@@ -121,7 +122,7 @@ namespace MapRunner
                     Debug.WriteLine("Waiting for update...");
 
                     // If DesiredAccuracy or DesiredAccuracyInMeters are not set (or value is 0), DesiredAccuracy.Default is used.
-                    Geolocator geolocator = new Geolocator { DesiredAccuracyInMeters = 10 };
+                    Geolocator geolocator = new Geolocator { DesiredAccuracyInMeters = 20 };
 
                     // Subscribe to the StatusChanged event to get updates of location status changes.
                    // _geolocator.StatusChanged += OnStatusChanged;
@@ -130,11 +131,11 @@ namespace MapRunner
                     Geoposition pos = await geolocator.GetGeopositionAsync();
                     Debug.WriteLine("Location updated.");
                     myMap.Center = pos.Coordinate.Point;
-                    myMap.TrySetViewAsync(pos.Coordinate.Point, 16, myMap.Heading, myMap.DesiredPitch, MapAnimationKind.Linear);
+                    await myMap.TrySetViewAsync(pos.Coordinate.Point, 16, myMap.Heading, myMap.DesiredPitch, MapAnimationKind.Linear);
                     MapIcon myPosition = new MapIcon();
                     myPosition.Location = myMap.Center;
                     myPosition.NormalizedAnchorPoint = new Point(0.5, 1.0);
-                    myPosition.Title = "My Position";
+                    myPosition.Title = "Я здесь";
                     myPosition.Image = _mapIconStreamReference;
                     myPosition.ZIndex = 0;
                     
