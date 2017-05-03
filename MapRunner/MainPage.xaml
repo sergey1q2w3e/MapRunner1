@@ -68,6 +68,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <local:LenghtWayStringFormatConverter x:Key="LenghtFormatConverter" />
     </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <!--<Button x:Name="mapItemButton" Background="Transparent" HorizontalAlignment="Center" BorderThickness="1"  >
@@ -103,7 +104,7 @@
                             <DataTemplate>
                                 <StackPanel>
                                     <Border Background="Transparent" HorizontalAlignment="Center">
-                                        <TextBlock Text="{Binding CurrentLenght}" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Path=CurrentLenght,Converter={StaticResource LenghtFormatConverter}, ConverterParameter='\{0:n3\} KM'}" FontWeight="Bold"/>
                                     </Border>
                                     <Button x:Name="mapItemButton" Background="Transparent" Padding="0" BorderThickness="1" HorizontalAlignment="Center" Click="mapItemButton_Click">
                                         <Image Source="Assets/pin48.png"
