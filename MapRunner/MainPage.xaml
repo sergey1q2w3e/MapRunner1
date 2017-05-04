@@ -68,7 +68,9 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <local:LenghtWayStringFormatConverter x:Key="LenghtFormatConverter" />
+        <local:LenghtWayStringFormatConverter x:Key="LenghtFormatConverter"/>
+        <local:BooleanToVisibilityConverter x:Key="BoolToVisConverter" Invert="False"/>
+        <local:BooleanToVisibilityConverter x:Key="BoolToVisInvertConverter" Invert="True"/>
     </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <!--<Button x:Name="mapItemButton" Background="Transparent" HorizontalAlignment="Center" BorderThickness="1"  >
@@ -87,19 +89,16 @@
             <SplitView.Pane>
                 <StackPanel>
                     <Button Name="HamdurgerButton" Background="Transparent" FontFamily="Segoe MDL2 Assets" FontSize="20" Width="40" Height="40" Content="&#xE700;" Click="HamdurgerButton_Click" HorizontalContentAlignment="Left"/>
-
                     <Button Name="btnDarkLightMode" Background="Transparent" Height="40" Width="40"  Style="{StaticResource btnDark}" Click="btnDarkLightMode_Click" HorizontalAlignment="Left" HorizontalContentAlignment="Left"/>
-
                     <Button Name="btnMapMode" Background="Transparent" Height="40" Width="40" Style="{StaticResource btnMapMode}" Click="btnMapMode_Click" HorizontalContentAlignment="Left" HorizontalAlignment="Left"/>
                     <Button Name="btnGetLocation" Background="Transparent" Height="40" Width="40" Style="{StaticResource GetLocationStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnGetLocation_Click"/>
-                    <Button Name="btnNewRoute" Background="Transparent" Height="40" Width="40" Style="{StaticResource NewRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnNewRoute_Click"/>
-                    <Button Name="btnDeleteRoute" Background="Transparent" Height="40" Width="40" Style="{StaticResource DeleteRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left"/>
-
+                    <Button Name="btnNewRoute" Visibility="{Binding IsRouting, Converter={StaticResource BoolToVisInvertConverter}}" Background="Transparent" Height="40" Width="40" Style="{StaticResource NewRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnNewRoute_Click"/>
+                    <Button Name="btnDeleteRoute" Visibility="{Binding IsRouting, Converter={StaticResource BoolToVisConverter}}" Background="Transparent" Height="40" Width="40" Style="{StaticResource DeleteRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnDeleteRoute_Click"/>
                 </StackPanel>
             </SplitView.Pane>
             <SplitView.Content>
                 <Maps:MapControl Name="myMap" ColorScheme="Light"  RotateInteractionMode="GestureAndControl" ZoomInteractionMode="GestureAndControl" TiltInteractionMode="GestureAndControl" MapServiceToken="709riiwA5V2Sdc9d5U3N~_YuXLW9e9zEl7qz4jt0VqA~Ah8J2RYapGj2pa4Dmrug9tWE-oQDk1ANmVF6j1txOoBx9TFQMnvyfEYKnoIrMwIc" d:IsHidden="True" MapTapped="myMap_MapTapped">
-                    <Maps:MapItemsControl x:Name="MapItems" ItemsSource="{x:Bind PointList}">
+                    <Maps:MapItemsControl x:Name="MapItems" ItemsSource="{Binding PointList}">
                         <Maps:MapItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
@@ -122,7 +121,6 @@
                         </Maps:MapItemsControl.ItemTemplate>
                     </Maps:MapItemsControl>
                 </Maps:MapControl>
-
             </SplitView.Content>
         </SplitView>
     </Grid>

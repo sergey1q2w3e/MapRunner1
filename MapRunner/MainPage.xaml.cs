@@ -33,8 +33,7 @@ namespace MapRunner
         private RandomAccessStreamReference _mapIconStreamReference;
         private MapPolyline _lastPolyline;
         private MapIcon _lastPosition;
-        public ObservableCollection<PointOfCustomRoute> PointList { get; set; }
-        public bool IsRouting { get; set; }
+        public MyMapViewModel MyMapVM;
         public MainPage()
         {
             this.InitializeComponent();
@@ -43,9 +42,10 @@ namespace MapRunner
             //Show();
             //ShowRouteOnMap();
             GetLocation();
-            PointList = new ObservableCollection<PointOfCustomRoute>();
-            //myMap.DataContext = this;
-            
+            //PointList = new ObservableCollection<PointOfCustomRoute>();
+            MyMapVM = new MyMapViewModel();
+            DataContext = MyMapVM;
+
         }
 
         private async void ShowRouteOnMap()
@@ -167,15 +167,15 @@ namespace MapRunner
         {
             if (isOpen)
             {
-                btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = 40;
+                btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = btnDeleteRoute.Width = 40;
                 btnDarkLightMode.HorizontalAlignment =
-                    btnMapMode.HorizontalAlignment = btnGetLocation.HorizontalAlignment = btnNewRoute.HorizontalAlignment = HorizontalAlignment.Left;
+                    btnMapMode.HorizontalAlignment = btnGetLocation.HorizontalAlignment = btnNewRoute.HorizontalAlignment = btnDeleteRoute.HorizontalAlignment = HorizontalAlignment.Left;
             }
             else
             {
-                btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = 150;
+                btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = btnDeleteRoute.Width = 150;
                 btnDarkLightMode.HorizontalAlignment =
-                    btnMapMode.HorizontalAlignment = btnGetLocation.HorizontalAlignment = btnNewRoute.HorizontalAlignment = HorizontalAlignment.Stretch;
+                    btnMapMode.HorizontalAlignment = btnGetLocation.HorizontalAlignment = btnNewRoute.HorizontalAlignment = btnDeleteRoute.HorizontalAlignment = HorizontalAlignment.Stretch;
             }
         }
         private void btnDarkLightMode_Click(object sender, RoutedEventArgs e)
@@ -222,26 +222,31 @@ namespace MapRunner
         
         private void btnNewRoute_Click(object sender, RoutedEventArgs e)
         {
-            
+            //PointList = new ObservableCollection<PointOfCustomRoute>();
+            MyMapVM.IsRouting = !MyMapVM.IsRouting;
         }
 
 
 
         private void myMap_MapTapped(MapControl sender, MapInputEventArgs args)
         {
-            Debug.WriteLine(String.Format(args.Location.Position.Latitude +" " +args.Location.Position.Longitude));
-            PointOfCustomRoute currPoint = new PointOfCustomRoute()
+            if (MyMapVM.IsRouting)
             {
-                Location = args.Location,
-                NormalizedAnchorPoint = new Point(0.5, 0.93)
-            };
-            if (PointList.Count != 0)
-            {
-                currPoint.CurrentLenght = PointList.Last().CurrentLenght + PointOfCustomRoute.GetDistance(PointList.Last(), currPoint);
-            }
-            PointList.Add(currPoint);
+                Debug.WriteLine(String.Format(args.Location.Position.Latitude + " " + args.Location.Position.Longitude));
+                PointOfCustomRoute currPoint = new PointOfCustomRoute()
+                {
+                    Location = args.Location,
+                    NormalizedAnchorPoint = new Point(0.5, 0.93)
+                };
+                if (MyMapVM.PointList.Count != 0)
+                {
+                    currPoint.CurrentLenght = MyMapVM.PointList.Last().CurrentLenght +
+                                              PointOfCustomRoute.GetDistance(MyMapVM.PointList.Last(), currPoint);
+                }
+                MyMapVM.PointList.Add(currPoint);
 
-            DrawPolyline();
+                DrawPolyline();
+            }
         }
 
         private void DrawPolyline()
@@ -250,15 +255,12 @@ namespace MapRunner
             polyline.StrokeColor = Colors.Navy;
             polyline.StrokeThickness = 3;
             List<BasicGeoposition> geopositions = new List<BasicGeoposition>();
-            foreach (PointOfCustomRoute pointOfCustomRoute in PointList)
+            foreach (PointOfCustomRoute pointOfCustomRoute in MyMapVM.PointList)
             {
                 geopositions.Add(pointOfCustomRoute.Location.Position);
             }
 
             polyline.Path = new Geopath(geopositions);
-            //MapElement latestPolyline = myMap.MapElements.Where(i => i.GetType() is MapPolyline).First();
-            //myMap.MapElements.Remove(latestPolyline);
-
             if (myMap.MapElements.Contains(_lastPolyline))
             {
                 myMap.MapElements.Remove(_lastPolyline);
@@ -274,19 +276,31 @@ namespace MapRunner
             PointOfCustomRoute currMapItem = mapItemButton?.DataContext as PointOfCustomRoute;
             if (currMapItem != null)
             {
-                int ind = PointList.IndexOf(currMapItem);
-                PointList.RemoveAt(ind);
-                DrawPolyline();
-                if (ind != PointList.Count)
+                int ind = MyMapVM.PointList.IndexOf(currMapItem);
+                MyMapVM.PointList.RemoveAt(ind);
+                if (MyMapVM.PointList.Count == 0)
                 {
-                    double delta = PointList[ind].CurrentLenght - PointList[ind - 1].CurrentLenght -
-                                   PointOfCustomRoute.GetDistance(PointList[ind], PointList[ind - 1]);
-                    for (int i = ind; i < PointList.Count; i++)
+                    MyMapVM.IsRouting = false;
+                    return;
+                }
+                DrawPolyline();
+                if (ind != MyMapVM.PointList.Count)
+                {
+                    double delta = MyMapVM.PointList[ind].CurrentLenght - MyMapVM.PointList[ind - 1].CurrentLenght -
+                                   PointOfCustomRoute.GetDistance(MyMapVM.PointList[ind], MyMapVM.PointList[ind - 1]);
+                    for (int i = ind; i < MyMapVM.PointList.Count; i++)
                     {
-                        PointList[i].CurrentLenght -= delta;
+                        MyMapVM.PointList[i].CurrentLenght -= delta;
                     }
                 }
             }
+        }
+
+        private void btnDeleteRoute_Click(object sender, RoutedEventArgs e)
+        {
+            myMap.MapElements.Remove(_lastPolyline);
+            MyMapVM.PointList.Clear();
+            MyMapVM.IsRouting = false;
         }
 
         
