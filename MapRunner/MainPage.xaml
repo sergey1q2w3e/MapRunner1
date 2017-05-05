@@ -84,7 +84,7 @@
                 </Image.Transitions>
             </Image>
         </Button>-->
-        
+
         <SplitView Name="MainSplitView" DisplayMode="CompactOverlay" CompactPaneLength="40" OpenPaneLength="150" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" PaneClosed="MainSplitView_PaneClosed">
             <SplitView.Pane>
                 <StackPanel>
@@ -97,30 +97,56 @@
                 </StackPanel>
             </SplitView.Pane>
             <SplitView.Content>
-                <Maps:MapControl Name="myMap" ColorScheme="Light"  RotateInteractionMode="GestureAndControl" ZoomInteractionMode="GestureAndControl" TiltInteractionMode="GestureAndControl" MapServiceToken="709riiwA5V2Sdc9d5U3N~_YuXLW9e9zEl7qz4jt0VqA~Ah8J2RYapGj2pa4Dmrug9tWE-oQDk1ANmVF6j1txOoBx9TFQMnvyfEYKnoIrMwIc" d:IsHidden="True" MapTapped="myMap_MapTapped">
-                    <Maps:MapItemsControl x:Name="MapItems" ItemsSource="{Binding PointList}">
-                        <Maps:MapItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <Border Background="Transparent" HorizontalAlignment="Center">
-                                        <TextBlock Text="{Binding Path=CurrentLenght,Converter={StaticResource LenghtFormatConverter}, ConverterParameter='\{0:n3\} KM'}" FontWeight="Bold"/>
-                                    </Border>
-                                    <Button x:Name="mapItemButton" Background="Transparent" Padding="0" BorderThickness="1" HorizontalAlignment="Center" Click="mapItemButton_Click">
-                                        <Image Source="Assets/pin48.png"
-                                               Maps:MapControl.NormalizedAnchorPoint="{Binding NormalizedAnchorPoint}"
-                                               Maps:MapControl.Location="{Binding Location}">
-                                            <Image.Transitions>
-                                                <TransitionCollection>
-                                                    <EntranceThemeTransition FromVerticalOffset="100" IsStaggeringEnabled="True"/>
-                                                </TransitionCollection>
-                                            </Image.Transitions>
-                                        </Image>
-                                    </Button>
-                                </StackPanel>
-                            </DataTemplate>
-                        </Maps:MapItemsControl.ItemTemplate>
-                    </Maps:MapItemsControl>
-                </Maps:MapControl>
+                <Grid>
+                    <Maps:MapControl Name="myMap" ColorScheme="Light"  RotateInteractionMode="GestureAndControl" ZoomInteractionMode="GestureAndControl" TiltInteractionMode="GestureAndControl" MapServiceToken="709riiwA5V2Sdc9d5U3N~_YuXLW9e9zEl7qz4jt0VqA~Ah8J2RYapGj2pa4Dmrug9tWE-oQDk1ANmVF6j1txOoBx9TFQMnvyfEYKnoIrMwIc" d:IsHidden="True" MapTapped="myMap_MapTapped">
+                        <Maps:MapItemsControl x:Name="MapItems" ItemsSource="{Binding PointList}">
+                            <Maps:MapItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <Border Background="Transparent" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding Path=CurrentLenght,Converter={StaticResource LenghtFormatConverter}, ConverterParameter='\{0:n3\} KM'}" FontWeight="Bold"/>
+                                        </Border>
+                                        <Button x:Name="mapItemButton" Background="Transparent" Padding="0" BorderThickness="1" HorizontalAlignment="Center" Click="mapItemButton_Click">
+                                            <Image Source="Assets/pin48.png"
+                                                   Maps:MapControl.NormalizedAnchorPoint="{Binding NormalizedAnchorPoint}"
+                                                   Maps:MapControl.Location="{Binding Location}">
+                                                <Image.Transitions>
+                                                    <TransitionCollection>
+                                                        <EntranceThemeTransition FromVerticalOffset="100" IsStaggeringEnabled="True"/>
+                                                    </TransitionCollection>
+                                                </Image.Transitions>
+                                            </Image>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Maps:MapItemsControl.ItemTemplate>
+                        </Maps:MapItemsControl>
+                    </Maps:MapControl>
+                    <Grid Height="130" VerticalAlignment="Bottom" Opacity="0.7">
+                        <Grid.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#FF004BA4"/>
+                                <GradientStop Color="#FFD8EAFD" Offset="1"/>
+                                <GradientStop Color="#FF5D9FE8" Offset="0.678"/>
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Время в пути" Grid.Row="0" Grid.Column="0" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Расстояние" Grid.Row="0" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Средняя скорость" Grid.Row="0" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="время" Grid.Row="1" Grid.Column="0" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="км" Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="км/ч" Grid.Row="1" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                    </Grid>
+                </Grid>
             </SplitView.Content>
         </SplitView>
     </Grid>

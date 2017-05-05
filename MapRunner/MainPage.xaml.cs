@@ -129,6 +129,7 @@ namespace MapRunner
 
                     // Carry out the operation.
                     Geoposition pos = await geolocator.GetGeopositionAsync();
+                    
                     Debug.WriteLine("Location updated.");
                     myMap.Center = pos.Coordinate.Point;
                     await myMap.TrySetViewAsync(pos.Coordinate.Point, 16, myMap.Heading, myMap.DesiredPitch, MapAnimationKind.Linear);
@@ -261,11 +262,12 @@ namespace MapRunner
             }
 
             polyline.Path = new Geopath(geopositions);
+            myMap.MapElements.Add(polyline);
             if (myMap.MapElements.Contains(_lastPolyline))
             {
                 myMap.MapElements.Remove(_lastPolyline);
             }
-            myMap.MapElements.Add(polyline);
+            
             _lastPolyline = polyline;
             
         }
@@ -278,8 +280,10 @@ namespace MapRunner
             {
                 int ind = MyMapVM.PointList.IndexOf(currMapItem);
                 MyMapVM.PointList.RemoveAt(ind);
-                if (MyMapVM.PointList.Count == 0)
+                if (ind == 0)
                 {
+                    myMap.MapElements.Remove(_lastPolyline);
+                    MyMapVM.PointList.Clear();
                     MyMapVM.IsRouting = false;
                     return;
                 }

@@ -12,7 +12,9 @@ namespace MapRunner
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public ObservableCollection<PointOfCustomRoute> PointList { get; set; }
-        private bool _isRouting ;
+        private bool _isRouting;
+        private bool _isRunning;
+        private double _runningLenght;
 
         public bool IsRouting
         {
@@ -21,6 +23,24 @@ namespace MapRunner
             {
                 _isRouting = value;
                 NotifyPropertyChanged("IsRouting");
+            }
+        }
+        public bool IsRunning
+        {
+            get { return _isRunning; }
+            set
+            {
+                _isRunning = value;
+                NotifyPropertyChanged("IsRunning");
+            }
+        }
+        public double RunningLenght
+        {
+            get { return _runningLenght; }
+            set
+            {
+                _runningLenght = value;
+                NotifyPropertyChanged("RunningLenght");
             }
         }
 
