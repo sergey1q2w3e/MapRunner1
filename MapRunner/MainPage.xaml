@@ -68,23 +68,32 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="StartStyle" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <TextBlock Text="&#xE726;" FontSize="20" FontFamily="Segoe MDL2 Assets"/>
+                        <TextBlock Text="Начать движение" Width="100"  FontFamily="Segoe UI" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0" FontSize="12" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="StopStyle" TargetType="Button">
+            <Setter Property="Content">
+                <Setter.Value>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <TextBlock Text="&#xE805;" FontSize="20" FontFamily="Segoe MDL2 Assets"/>
+                        <TextBlock Text="Закончить движение" Width="100"  FontFamily="Segoe UI" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,0,0" FontSize="12" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <local:LenghtWayStringFormatConverter x:Key="LenghtFormatConverter"/>
         <local:BooleanToVisibilityConverter x:Key="BoolToVisConverter" Invert="False"/>
         <local:BooleanToVisibilityConverter x:Key="BoolToVisInvertConverter" Invert="True"/>
+        <local:BooleanStarStopConverter x:Key="BooleanStarStopConverter"/>
     </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <!--<Button x:Name="mapItemButton" Background="Transparent" HorizontalAlignment="Center" BorderThickness="1"  >
-            <Image Source="Assets/pin48.png"
-                                               Maps:MapControl.NormalizedAnchorPoint="{Binding NormalizedAnchorPoint}"
-                                               Maps:MapControl.Location="{Binding Location}" Stretch="None"  Margin="-10,-5">
-                <Image.Transitions>
-                    <TransitionCollection>
-                        <EntranceThemeTransition FromVerticalOffset="100" IsStaggeringEnabled="True"/>
-                    </TransitionCollection>
-                </Image.Transitions>
-            </Image>
-        </Button>-->
-
         <SplitView Name="MainSplitView" DisplayMode="CompactOverlay" CompactPaneLength="40" OpenPaneLength="150" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" PaneClosed="MainSplitView_PaneClosed">
             <SplitView.Pane>
                 <StackPanel>
@@ -94,6 +103,8 @@
                     <Button Name="btnGetLocation" Background="Transparent" Height="40" Width="40" Style="{StaticResource GetLocationStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnGetLocation_Click"/>
                     <Button Name="btnNewRoute" Visibility="{Binding IsRouting, Converter={StaticResource BoolToVisInvertConverter}}" Background="Transparent" Height="40" Width="40" Style="{StaticResource NewRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnNewRoute_Click"/>
                     <Button Name="btnDeleteRoute" Visibility="{Binding IsRouting, Converter={StaticResource BoolToVisConverter}}" Background="Transparent" Height="40" Width="40" Style="{StaticResource DeleteRouteStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnDeleteRoute_Click"/>
+                    <Button Name="btnStart" Background="Transparent" Height="40" Width="40" Style="{StaticResource StartStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnStart_Click"/>
+                    <Button Name="btnStop" Visibility="Collapsed" Background="Transparent" Height="40" Width="40" Style="{StaticResource StopStyle}"  HorizontalContentAlignment="Left" HorizontalAlignment="Left" Click="btnStop_Click"/>
                 </StackPanel>
             </SplitView.Pane>
             <SplitView.Content>
@@ -122,7 +133,7 @@
                             </Maps:MapItemsControl.ItemTemplate>
                         </Maps:MapItemsControl>
                     </Maps:MapControl>
-                    <Grid Height="130" VerticalAlignment="Bottom" Opacity="0.7">
+                    <Grid Name="RunningGrid" Visibility="Collapsed" Height="130" VerticalAlignment="Bottom" Opacity="0.7">
                         <Grid.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                 <GradientStop Color="#FF004BA4"/>
@@ -133,18 +144,20 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"></RowDefinition>
                             <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="*"></RowDefinition>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"></ColumnDefinition>
-                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Время в пути" Grid.Row="0" Grid.Column="0" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
-                        <TextBlock Text="Расстояние" Grid.Row="0" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
-                        <TextBlock Text="Средняя скорость" Grid.Row="0" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
-                        <TextBlock Text="время" Grid.Row="1" Grid.Column="0" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Расстояние, км" Grid.Row="0" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Средняя скорость, м/с" Grid.Row="0" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding RunningTime}" Grid.Row="1" Grid.Column="0" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
                         <TextBlock Text="км" Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
-                        <TextBlock Text="км/ч" Grid.Row="1" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="{Binding CurrentSpeed}" Grid.Row="1" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <Button Name="StopRunningButton" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" BorderThickness="3" HorizontalAlignment="Stretch" Content="{Binding IsRunning, Converter={StaticResource BooleanStarStopConverter}}" Background="#00000000" BorderBrush="#991964BF" Padding="0" Margin="20,0" FontWeight="Bold" Foreground="White" Click="StopRunningButton_Click"></Button>
                     </Grid>
                 </Grid>
             </SplitView.Content>

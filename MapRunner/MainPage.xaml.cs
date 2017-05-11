@@ -33,6 +33,7 @@ namespace MapRunner
         private RandomAccessStreamReference _mapIconStreamReference;
         private MapPolyline _lastPolyline;
         private MapIcon _lastPosition;
+        
         public MyMapViewModel MyMapVM;
         public MainPage()
         {
@@ -42,7 +43,6 @@ namespace MapRunner
             //Show();
             //ShowRouteOnMap();
             GetLocation();
-            //PointList = new ObservableCollection<PointOfCustomRoute>();
             MyMapVM = new MyMapViewModel();
             DataContext = MyMapVM;
 
@@ -122,11 +122,11 @@ namespace MapRunner
                     Debug.WriteLine("Waiting for update...");
 
                     // If DesiredAccuracy or DesiredAccuracyInMeters are not set (or value is 0), DesiredAccuracy.Default is used.
-                    Geolocator geolocator = new Geolocator { DesiredAccuracyInMeters = 20 };
+                    Geolocator geolocator = new Geolocator { DesiredAccuracyInMeters = 20, ReportInterval = 2000};
 
                     // Subscribe to the StatusChanged event to get updates of location status changes.
-                   // _geolocator.StatusChanged += OnStatusChanged;
-
+                    // _geolocator.StatusChanged += OnStatusChanged;
+                    geolocator.PositionChanged += OnPositionChanged;
                     // Carry out the operation.
                     Geoposition pos = await geolocator.GetGeopositionAsync();
                     
@@ -157,35 +157,21 @@ namespace MapRunner
             }
         }
 
-
+        #region Buttons
         private void HamdurgerButton_Click(object sender, RoutedEventArgs e)
         {
             SplitPanelRefresh(MainSplitView.IsPaneOpen);
             MainSplitView.IsPaneOpen = !MainSplitView.IsPaneOpen;
         }
 
-        private void SplitPanelRefresh(bool isOpen)
-        {
-            if (isOpen)
-            {
-                btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = btnDeleteRoute.Width = 40;
-                btnDarkLightMode.HorizontalAlignment =
-                    btnMapMode.HorizontalAlignment = btnGetLocation.HorizontalAlignment = btnNewRoute.HorizontalAlignment = btnDeleteRoute.HorizontalAlignment = HorizontalAlignment.Left;
-            }
-            else
-            {
-                btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = btnDeleteRoute.Width = 150;
-                btnDarkLightMode.HorizontalAlignment =
-                    btnMapMode.HorizontalAlignment = btnGetLocation.HorizontalAlignment = btnNewRoute.HorizontalAlignment = btnDeleteRoute.HorizontalAlignment = HorizontalAlignment.Stretch;
-            }
-        }
         private void btnDarkLightMode_Click(object sender, RoutedEventArgs e)
         {
             if (myMap.ColorScheme == MapColorScheme.Light)
             {
                 myMap.ColorScheme = MapColorScheme.Dark;
                 btnDarkLightMode.Style = (Style)Resources.FirstOrDefault(dt => String.Equals(dt.Key, "btnLight")).Value;
-            } else if (myMap.ColorScheme == MapColorScheme.Dark)
+            }
+            else if (myMap.ColorScheme == MapColorScheme.Dark)
             {
                 myMap.ColorScheme = MapColorScheme.Light;
                 btnDarkLightMode.Style = (Style)Resources.FirstOrDefault(dt => String.Equals(dt.Key, "btnDark")).Value;
@@ -216,60 +202,9 @@ namespace MapRunner
             GetLocation();
         }
 
-        private void MainSplitView_PaneClosed(SplitView sender, object args)
-        {
-            SplitPanelRefresh(true);
-        }
-        
         private void btnNewRoute_Click(object sender, RoutedEventArgs e)
         {
-            //PointList = new ObservableCollection<PointOfCustomRoute>();
             MyMapVM.IsRouting = !MyMapVM.IsRouting;
-        }
-
-
-
-        private void myMap_MapTapped(MapControl sender, MapInputEventArgs args)
-        {
-            if (MyMapVM.IsRouting)
-            {
-                Debug.WriteLine(String.Format(args.Location.Position.Latitude + " " + args.Location.Position.Longitude));
-                PointOfCustomRoute currPoint = new PointOfCustomRoute()
-                {
-                    Location = args.Location,
-                    NormalizedAnchorPoint = new Point(0.5, 0.93)
-                };
-                if (MyMapVM.PointList.Count != 0)
-                {
-                    currPoint.CurrentLenght = MyMapVM.PointList.Last().CurrentLenght +
-                                              PointOfCustomRoute.GetDistance(MyMapVM.PointList.Last(), currPoint);
-                }
-                MyMapVM.PointList.Add(currPoint);
-
-                DrawPolyline();
-            }
-        }
-
-        private void DrawPolyline()
-        {
-            MapPolyline polyline = new MapPolyline();
-            polyline.StrokeColor = Colors.Navy;
-            polyline.StrokeThickness = 3;
-            List<BasicGeoposition> geopositions = new List<BasicGeoposition>();
-            foreach (PointOfCustomRoute pointOfCustomRoute in MyMapVM.PointList)
-            {
-                geopositions.Add(pointOfCustomRoute.Location.Position);
-            }
-
-            polyline.Path = new Geopath(geopositions);
-            myMap.MapElements.Add(polyline);
-            if (myMap.MapElements.Contains(_lastPolyline))
-            {
-                myMap.MapElements.Remove(_lastPolyline);
-            }
-            
-            _lastPolyline = polyline;
-            
         }
 
         private void mapItemButton_Click(object sender, RoutedEventArgs e)
@@ -299,7 +234,6 @@ namespace MapRunner
                 }
             }
         }
-
         private void btnDeleteRoute_Click(object sender, RoutedEventArgs e)
         {
             myMap.MapElements.Remove(_lastPolyline);
@@ -307,6 +241,108 @@ namespace MapRunner
             MyMapVM.IsRouting = false;
         }
 
-        
+        private void btnStart_Click(object sender, RoutedEventArgs e)
+        {
+            btnStart.Visibility = Visibility.Collapsed;
+            btnStop.Visibility = RunningGrid.Visibility = Visibility.Visible;
+            MyMapVM.StartRunning();
+        }
+
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            btnStart.Visibility = Visibility.Visible;
+            btnStop.Visibility = RunningGrid.Visibility = Visibility.Collapsed;
+            MyMapVM.StopRunning();
+        }
+
+        private void StopRunningButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyMapVM.IsRunning)
+            {
+                MyMapVM.PauseRunning();
+            }
+            else
+            {
+                MyMapVM.StartRunning();
+            }
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void MainSplitView_PaneClosed(SplitView sender, object args)
+        {
+            SplitPanelRefresh(true);
+        }
+
+        private void myMap_MapTapped(MapControl sender, MapInputEventArgs args)
+        {
+            if (MyMapVM.IsRouting)
+            {
+                Debug.WriteLine(String.Format(args.Location.Position.Latitude + " " + args.Location.Position.Longitude));
+                PointOfCustomRoute currPoint = new PointOfCustomRoute()
+                {
+                    Location = args.Location,
+                    NormalizedAnchorPoint = new Point(0.5, 0.93)
+                };
+                if (MyMapVM.PointList.Count != 0)
+                {
+                    currPoint.CurrentLenght = MyMapVM.PointList.Last().CurrentLenght +
+                                              PointOfCustomRoute.GetDistance(MyMapVM.PointList.Last(), currPoint);
+                }
+                MyMapVM.PointList.Add(currPoint);
+
+                DrawPolyline();
+            }
+        }
+
+        private async void OnPositionChanged(Geolocator sender, PositionChangedEventArgs args)
+        {
+            Debug.WriteLine(String.Format(args.Position.Coordinate.Point.Position.Latitude + " " + args.Position.Coordinate.Point.Position.Longitude));
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (!double.IsNaN((double)args.Position.Coordinate.Speed))
+                    MyMapVM.CurrentSpeed = (double)args.Position.Coordinate.Speed;
+                else
+                    MyMapVM.CurrentSpeed = 0.0;
+            });
+        }
+
+        #endregion
+
+        private void SplitPanelRefresh(bool isOpen)
+        {
+            if (isOpen)
+            {
+                 btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = btnDeleteRoute.Width = btnStart.Width = btnStop.Width = 40;
+            }
+            else
+            {
+                 btnDarkLightMode.Width = btnMapMode.Width = btnGetLocation.Width = btnNewRoute.Width = btnDeleteRoute.Width = btnStart.Width = btnStop.Width = 150;
+            }
+        }
+     
+        private void DrawPolyline()
+        {
+            MapPolyline polyline = new MapPolyline();
+            polyline.StrokeColor = Colors.Navy;
+            polyline.StrokeThickness = 3;
+            List<BasicGeoposition> geopositions = new List<BasicGeoposition>();
+            foreach (PointOfCustomRoute pointOfCustomRoute in MyMapVM.PointList)
+            {
+                geopositions.Add(pointOfCustomRoute.Location.Position);
+            }
+
+            polyline.Path = new Geopath(geopositions);
+            myMap.MapElements.Add(polyline);
+            if (myMap.MapElements.Contains(_lastPolyline))
+            {
+                myMap.MapElements.Remove(_lastPolyline);
+            }
+            
+            _lastPolyline = polyline;
+            
+        }
     }
 }

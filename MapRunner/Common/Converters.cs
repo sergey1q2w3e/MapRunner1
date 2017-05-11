@@ -56,4 +56,18 @@ namespace MapRunner
             
         }
     }
+
+    public class BooleanStarStopConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            bool flag = (bool) value;
+            return flag ? "Стоп" : "Старт";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
