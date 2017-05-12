@@ -32,6 +32,7 @@ namespace MapRunner
     {
         private RandomAccessStreamReference _mapIconStreamReference;
         private MapPolyline _lastPolyline;
+        private MapPolyline _lastRunRoute;
         private MapIcon _lastPosition;
         
         public MyMapViewModel MyMapVM;
@@ -45,22 +46,23 @@ namespace MapRunner
             GetLocation();
             MyMapVM = new MyMapViewModel();
             DataContext = MyMapVM;
-
+            // TODO Почему то Fade-эффект не работает если явно указать Visibility="Collapsed" в XAML, поэтому пришлось убирать Grid здесь
+            FadeOutRunningGrid.Begin();
         }
 
         private async void ShowRouteOnMap()
         {
             
             // Start at Microsoft in Redmond, Washington.
-            BasicGeoposition startLocation = new BasicGeoposition() { Latitude = 47.643, Longitude = -122.131 };
+            BasicGeoposition startLocation = new BasicGeoposition() { Latitude = 56.31, Longitude = 44.00 };
 
             // End at the city of Seattle, Washington.
-            BasicGeoposition endLocation = new BasicGeoposition() { Latitude = 47.604, Longitude = -122.429 };
+            BasicGeoposition endLocation = new BasicGeoposition() { Latitude = 56.00, Longitude = 44.00 };
             
 
             // Get the route between the points.
             MapRouteFinderResult routeResult =
-                  await MapRouteFinder.GetWalkingRouteAsync(
+                  await MapRouteFinder.GetDrivingRouteAsync(
                   new Geopoint(startLocation),
                   new Geopoint(endLocation) );
 
@@ -131,21 +133,9 @@ namespace MapRunner
                     Geoposition pos = await geolocator.GetGeopositionAsync();
                     
                     Debug.WriteLine("Location updated.");
+                    DrawMyPosition(pos.Coordinate.Point);
                     myMap.Center = pos.Coordinate.Point;
                     await myMap.TrySetViewAsync(pos.Coordinate.Point, 16, myMap.Heading, myMap.DesiredPitch, MapAnimationKind.Linear);
-                    MapIcon myPosition = new MapIcon();
-                    myPosition.Location = myMap.Center;
-                    myPosition.NormalizedAnchorPoint = new Point(0.5, 1.0);
-                    myPosition.Title = "Я здесь";
-                    myPosition.Image = _mapIconStreamReference;
-                    myPosition.ZIndex = 0;
-                    
-                    if (myMap.MapElements.Contains(_lastPosition))
-                    {
-                        myMap.MapElements.Remove(_lastPosition);
-                    }
-                    myMap.MapElements.Add(myPosition);
-                    _lastPosition = myPosition;
 
                     break;
                 case GeolocationAccessStatus.Denied:
@@ -244,14 +234,16 @@ namespace MapRunner
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
             btnStart.Visibility = Visibility.Collapsed;
-            btnStop.Visibility = RunningGrid.Visibility = Visibility.Visible;
+            btnStop.Visibility = Visibility.Visible;
+            FadeInRunningGrid.Begin();
             MyMapVM.StartRunning();
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
             btnStart.Visibility = Visibility.Visible;
-            btnStop.Visibility = RunningGrid.Visibility = Visibility.Collapsed;
+            btnStop.Visibility = Visibility.Collapsed;
+            FadeOutRunningGrid.Begin();
             MyMapVM.StopRunning();
         }
 
@@ -266,7 +258,7 @@ namespace MapRunner
                 MyMapVM.StartRunning();
             }
         }
-
+        
         #endregion
 
         #region Event Handlers
@@ -302,10 +294,14 @@ namespace MapRunner
             Debug.WriteLine(String.Format(args.Position.Coordinate.Point.Position.Latitude + " " + args.Position.Coordinate.Point.Position.Longitude));
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (!double.IsNaN((double)args.Position.Coordinate.Speed))
-                    MyMapVM.CurrentSpeed = (double)args.Position.Coordinate.Speed;
+                Geocoordinate coord = args.Position.Coordinate;
+                if (!double.IsNaN((double)coord.Speed))
+                    MyMapVM.CurrentSpeed = (double)coord.Speed;
                 else
                     MyMapVM.CurrentSpeed = 0.0;
+                MyMapVM.RunPointList.Add(coord.Point.Position);
+                DrawRunRoute();
+                DrawMyPosition(coord.Point);
             });
         }
 
@@ -343,6 +339,37 @@ namespace MapRunner
             
             _lastPolyline = polyline;
             
+        }
+
+        private void DrawRunRoute()
+        {
+            MapPolyline route = new MapPolyline();
+            route.StrokeColor = Colors.RoyalBlue;
+            route.StrokeThickness = 3;
+            route.Path = new Geopath(MyMapVM.RunPointList);
+            myMap.MapElements.Add(route);
+            if (myMap.MapElements.Contains(_lastRunRoute))
+            {
+                myMap.MapElements.Remove(_lastRunRoute);
+            }
+            _lastRunRoute = route;
+        }
+
+        private void DrawMyPosition(Geopoint position)
+        {
+            MapIcon myPosition = new MapIcon();
+            myPosition.Location = position;
+            myPosition.NormalizedAnchorPoint = new Point(0.5, 1.0);
+            myPosition.Title = "Я здесь";
+            myPosition.Image = _mapIconStreamReference;
+            myPosition.ZIndex = 0;
+
+            if (myMap.MapElements.Contains(_lastPosition))
+            {
+                myMap.MapElements.Remove(_lastPosition);
+            }
+            myMap.MapElements.Add(myPosition);
+            _lastPosition = myPosition;
         }
     }
 }

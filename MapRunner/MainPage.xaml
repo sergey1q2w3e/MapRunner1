@@ -92,6 +92,12 @@
         <local:BooleanToVisibilityConverter x:Key="BoolToVisConverter" Invert="False"/>
         <local:BooleanToVisibilityConverter x:Key="BoolToVisInvertConverter" Invert="True"/>
         <local:BooleanStarStopConverter x:Key="BooleanStarStopConverter"/>
+        <Storyboard x:Name="FadeInRunningGrid">
+            <FadeInThemeAnimation TargetName="RunningGrid"></FadeInThemeAnimation>
+        </Storyboard>
+        <Storyboard x:Name="FadeOutRunningGrid">
+            <FadeOutThemeAnimation TargetName="RunningGrid"></FadeOutThemeAnimation>
+        </Storyboard>
     </Page.Resources>
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <SplitView Name="MainSplitView" DisplayMode="CompactOverlay" CompactPaneLength="40" OpenPaneLength="150" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" PaneClosed="MainSplitView_PaneClosed">
@@ -133,7 +139,7 @@
                             </Maps:MapItemsControl.ItemTemplate>
                         </Maps:MapItemsControl>
                     </Maps:MapControl>
-                    <Grid Name="RunningGrid" Visibility="Collapsed" Height="130" VerticalAlignment="Bottom" Opacity="0.7">
+                    <Grid Name="RunningGrid" Height="130" VerticalAlignment="Bottom" Opacity="0.7">
                         <Grid.Background>
                             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                                 <GradientStop Color="#FF004BA4"/>
@@ -153,7 +159,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Время в пути" Grid.Row="0" Grid.Column="0" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
                         <TextBlock Text="Расстояние, км" Grid.Row="0" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
-                        <TextBlock Text="Средняя скорость, м/с" Grid.Row="0" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                        <TextBlock Text="Скорость, м/с" Grid.Row="0" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
                         <TextBlock Text="{Binding RunningTime}" Grid.Row="1" Grid.Column="0" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
                         <TextBlock Text="км" Grid.Row="1" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
                         <TextBlock Text="{Binding CurrentSpeed}" Grid.Row="1" Grid.Column="2" Foreground="White" HorizontalAlignment="Center" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>

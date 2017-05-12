@@ -15,6 +15,7 @@ namespace MapRunner
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public ObservableCollection<PointOfCustomRoute> PointList { get; set; }
+        public ObservableCollection<BasicGeoposition> RunPointList { get; set; }
         private bool _isRouting;
         private bool _isRunning;
         private double _runningLenght;
@@ -76,6 +77,7 @@ namespace MapRunner
         public MyMapViewModel()
         {
             PointList = new ObservableCollection<PointOfCustomRoute>();
+            RunPointList = new ObservableCollection<BasicGeoposition>();
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
             _timer.Tick += Timer_tick;
